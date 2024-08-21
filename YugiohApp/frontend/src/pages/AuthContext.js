@@ -23,17 +23,7 @@ export const AuthProvider = ({ children }) => {
       }
     }
   }, []);
-    // const login = async (username, password) => {
-    //     try {
-    //     const response = await axios.post('/api/auth/login', { username, password });
-    //     const { token } = response.data;
-    //     localStorage.setItem('token', token);
-    //     setUser({ username });
-    //     navigate('/dashboard');
-    //     } catch (error) {
-    //     console.error('Failed to login', error);
-    //     }
-    // };
+   
 
     const login = async (username, password) => {
       try {
