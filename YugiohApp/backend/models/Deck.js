@@ -6,7 +6,7 @@ const sequelize = require('../database/db');
 class Deck extends Model {
   static associate(models) {
     this.belongsTo(models.User, {
-      foreignKey: 'id',
+      foreignKey: 'userId',
       as: 'user'
     });
     this.belongsToMany(models.Card, {
@@ -25,7 +25,20 @@ Deck.init({
   },
   name: DataTypes.STRING,
   description: DataTypes.TEXT,
-  deckList: DataTypes.ARRAY(DataTypes.STRING)
+  deckList: DataTypes.ARRAY(DataTypes.STRING),
+  public: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false, // Default to private
+  },
+  userId: { 
+    type: DataTypes.INTEGER,
+    //field: 'user_id',
+    references: {
+      model: 'Users',
+      key: 'id'
+    },
+    allowNull: false
+  }
 }, {
   sequelize,
   modelName: 'Deck',

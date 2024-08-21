@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DeckList from '../components/Deck/DeckList';
 import { useNavigate } from 'react-router-dom';
-
+import { jwtDecode } from 'jwt-decode';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -15,9 +15,19 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    axios.get('/api/decks')
-      .then(response => setDecks(response.data))
-      .catch(error => console.error('Error fetching user decks:', error));
+    const fetchUserDecks = async () =>{
+
+      try {
+        const token = localStorage.getItem('token');
+        const decodedToken = jwtDecode(token);
+        const response = await axios.post('/api/decks/userdecks', { userId: decodedToken.userId });
+        setDecks(response.data);
+      } catch (error) {
+        console.error('Error fetching user decks:', error);
+      }
+    };
+
+    fetchUserDecks();
   }, []);
 
   return (

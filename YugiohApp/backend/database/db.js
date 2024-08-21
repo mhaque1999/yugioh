@@ -2,14 +2,16 @@ const { Sequelize } = require('sequelize');
 
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
+  //database: process.env.DB_DATABASE || 'mydatabase2.5',
+  //database: process.env.DB_DATABASE || 'mydatabase3',
   database: process.env.DB_DATABASE || 'mydatabase2',
   dialect: 'postgres'
 };
 
 const globalOptions = {
   define: {
-    timestamps: true, // Adds createdAt and updatedAt timestamps
-    underscored: true // Uses underscored naming convention for columns
+    timestamps: true, 
+    underscored: true 
   }
 };
 

@@ -2,20 +2,24 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../database/db');
 const Deck = require('./Deck'); 
-const Card = require('./Card');
+const User = require('./User');
 
-class DeckCard extends Model {
+class Comment extends Model {
   static associate(models) {
-    this.belongsTo(models.Deck, { foreignKey: 'deckId' });
-    this.belongsTo(models.Card, { foreignKey: 'cardId' });
+    this.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    this.belongsTo(models.Deck, { foreignKey: 'deckId', as: 'deck' });
   }
 }
 
-DeckCard.init({
+Comment.init({
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false
   },
   deckId: {
     type: DataTypes.INTEGER,
@@ -25,22 +29,18 @@ DeckCard.init({
       key: 'id'
     }
   },
-  cardId: {
+  userId: {
     type: DataTypes.INTEGER,
-    field: 'card_id',
+    field: 'user_id',
     references: {
-      model: Card,
+      model: User,
       key: 'id'
     }
-  },
-  count: {  
-    type: DataTypes.INTEGER,
-    defaultValue: 1, 
   }
 }, {
   sequelize,
-  modelName: 'DeckCard',
-  tableName: 'DeckCards'
+  modelName: 'Comment',
+  tableName: 'Comments'
 });
 
-module.exports = DeckCard;
+module.exports = Comment;

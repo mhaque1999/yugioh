@@ -1,22 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './DeckList.css';
 
-function DeckList() {
-  const [decks, setDecks] = useState([]);
-
+function DeckList({ decks }) {
   const navigate = useNavigate();
 
   const handleEditClick = (deckId) => {
     navigate(`/deck-builder/${deckId}`);
   };
-
-  useEffect(() => {
-    axios.get('/api/decks')
-      .then(response => setDecks(response.data))
-      .catch(error => console.error('Error fetching decks:', error));
-  }, []);
 
   return (
     <div className="deck-list">

@@ -26,11 +26,11 @@ function HomePage() {
           <Link to="/community-hub" className="home-button">Explore Community</Link>
         </section>
       </main>
-      <footer className="home-footer">
+      {/* <footer className="home-footer">
         <Link to="/login" className="home-button">Log In</Link>
         <br></br>
         <Link to="/signup" className="home-button">Sign Up</Link>
-      </footer>
+      </footer> */}
     </div>
   );
 }

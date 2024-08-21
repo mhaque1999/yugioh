@@ -6,12 +6,14 @@ const authRoutes = require('./routes/authRoutes');
 const deckRoutes = require('./routes/deckRoutes');
 const cardRoutes = require('./routes/cardRoutes');
 const flickrRoutes = require('./routes/flickrRoutes');
+const commentsRoutes = require('./routes/commentsRoutes');
 
 
 const Card = require('./models/Card');
 const Deck = require('./models/Deck');
 const User = require('./models/User');
 const DeckCard = require('./models/DeckCard');
+const Comment = require('./models/Comment');
 
 const { uploadAllImages } = require('./controllers/flickrController');
 
@@ -30,6 +32,7 @@ app.use(rateLimit);
 app.use('/api/auth', authRoutes);
 app.use('/api/decks', deckRoutes);
 app.use('/api/cards', cardRoutes);
+app.use('/api', commentsRoutes);
 app.use('/flickr', flickrRoutes);
 
 
@@ -45,8 +48,9 @@ async function syncDatabaseAndStartServer() {
     Card.associate({ Deck, DeckCard });
     Deck.associate({ Card, User, DeckCard });
     User.associate({ Deck });
+    Comment.associate({ User, Deck });
 
-    await uploadAllImages();
+    //await uploadAllImages();
 
 
     app.listen(PORT, () => {
@@ -71,3 +75,4 @@ sequelize.authenticate()
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
+
