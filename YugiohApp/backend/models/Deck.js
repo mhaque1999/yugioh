@@ -28,7 +28,7 @@ Deck.init({
   deckList: DataTypes.ARRAY(DataTypes.STRING),
   public: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false, // Default to private
+    defaultValue: false, 
   },
   userId: { 
     type: DataTypes.INTEGER,

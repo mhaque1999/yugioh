@@ -34,12 +34,12 @@ exports.editComment = async (req, res) => {
   try {
     const { commentId} = req.params;
     const { content, userid } = req.body;
-    console.log('Editing comment ID:', commentId); // Log commentId for debugging
+    console.log('Editing comment ID:', commentId); 
     // Find the comment by ID
     const comment = await Comment.findByPk(commentId,{include: [{ model: User, as: 'user' }] });
     console.log(comment, content)
 
-    // Check if the comment exists and if the current user is the owner
+    
     if (!comment) {
       return res.status(404).json({ error: 'Comment not found' });
     }
@@ -64,11 +64,9 @@ exports.deleteComment = async (req, res) => {
   try {
     const { commentId } = req.params;
     const { userid } = req.query;
-    // Find the comment by ID
     const comment = await Comment.findByPk(commentId);
     console.log(comment)
 
-    // Check if the comment exists and if the current user is the owner
     if (!comment) {
       return res.status(404).json({ error: 'Comment not found' });
     }

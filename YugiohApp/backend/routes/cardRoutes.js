@@ -7,7 +7,6 @@ const cardController = require('../controllers/cardController');
 //router.get('/', apiLimiter, cardController.getAllCards);
 router.get('/', apiLimiter, cardController.getAllCardsFromTable);
 router.get('/:name', apiLimiter, cardController.getCardById);
-//router.post('/', apiLimiter, cardController.createCard);
 //router.put('/:id', apiLimiter, cardController.updateCard);
 //router.delete('/:id', cardController.deleteCard);
 router.post('/:deckId/add', apiLimiter, cardController.addCardsToDeck);

@@ -15,6 +15,7 @@ function DeckBuilderPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deckName, setDeckName] = useState(''); 
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     
@@ -72,7 +73,8 @@ function DeckBuilderPage() {
 
         // Add cards to the deck
         await axios.post(`/api/cards/${deckId}/add`, { cardIds });
-  
+        setMessage('Deck saved successfully!');
+        setTimeout(() => setMessage(''), 3000);
       } else {
         // Create new deck
         const response = await axios.post('/api/decks', { name: currentDeckName, userId:decodedToken.userId });
@@ -83,14 +85,19 @@ function DeckBuilderPage() {
   
         // Navigate to the deck builder with the new deck ID
         navigate(`/deck-builder/${newDeckId}`);
+        setMessage('Deck saved successfully!');
+        setTimeout(() => setMessage(''), 3000);
       }
     } catch (error) {
       console.error('Error saving deck:', error.response ? error.response.data : error.message);
       console.error('Error saving deck:', error);
       setError('Failed to save deck');
+      setMessage('Failed to save deck.');
+      setTimeout(() => setMessage(''), 3000);
     }
   };
-  
+
+  const isSaveDisabled = !deckName || selectedCards.length === 0;
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -103,17 +110,25 @@ function DeckBuilderPage() {
   return (
     <div className="deck-builder-page">
       <h2>{deckId ? `Edit Deck: ${deckName}` : 'Build Your Deck'}</h2>
+      <div className="checkbox-container">
       <input
         type="checkbox"
         checked={publicDeck}
         onChange={(event) => setPublicDeck(event.target.checked)}
-      />Public 
+        id="publicDeckCheckbox"
+      />
+      <label htmlFor="publicDeckCheckbox">
+        <span role="img" aria-label="Public Deck">🌐</span> Public
+      </label>
+    </div>
+      {message && <div className="message">{message}</div>}
       <DeckBuilder
         deckName={deckName} 
         selectedCards={selectedCards}
         setSelectedCards={setSelectedCards}
         onSave={handleSaveDeck}
-        setDeckName={setDeckName} 
+        setDeckName={setDeckName}
+        isSaveDisabled={isSaveDisabled} 
       />
     </div>
   );

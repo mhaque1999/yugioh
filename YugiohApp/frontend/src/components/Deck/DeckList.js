@@ -11,7 +11,6 @@ function DeckList({ decks }) {
 
   return (
     <div className="deck-list">
-      <h2>Your Decks</h2>
       <div className="deck-cards">
         {decks.length > 0 ? (
           decks.map(deck => (

@@ -354,8 +354,8 @@ async function addCardsToDeck(req, res) {
         console.log('Removing existing cards...');
         await DeckCard.destroy({
           where: {
-            deck_id: deckId,  // Correct column name
-            card_id: validCardEntries.map(entry => entry.card_id)  // Correct column name
+            deck_id: deckId,  
+            card_id: validCardEntries.map(entry => entry.card_id)  
           },
           transaction
         });

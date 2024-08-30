@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './DeckBuilder.css';
+import './DeckBuilder.css'; 
 import { getImageUrl } from '../../utils/util';
 
-function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCards, setDeckName, deckId }) {
+function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCards, setDeckName, deckId, isSaveDisabled }) {
   const [cards, setCards] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   // Fetch all available cards on component mount
   useEffect(() => {
     const fetchCards = async () => {
       try {
-        setLoading(true); 
+        setLoading(true);
         const response = await axios.get('/api/cards');
         setCards(response.data);
       } catch (error) {
         console.error('Error fetching cards:', error);
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
@@ -49,7 +49,7 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
   const handleClick = (card) => {
     setSelectedCards(prevSelectedCards => {
       const existingCard = prevSelectedCards.find(selectedCard => selectedCard.id === card.id);
-  
+
       if (existingCard) {
         if (existingCard.DeckCard && existingCard.DeckCard.count < 3) {
           return prevSelectedCards.map(selectedCard =>
@@ -64,11 +64,9 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
               : selectedCard
           );
         }
-        console.log("this is if card count is 3 or more", prevSelectedCards);
         return prevSelectedCards;
       }
-  
-      console.log(prevSelectedCards);
+
       return [...prevSelectedCards, { ...card, count_in_deck: 1 }];
     });
   };
@@ -76,7 +74,7 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
   const handleRemove = (card) => {
     setSelectedCards(prevSelectedCards => {
       const existingCard = prevSelectedCards.find(selectedCard => selectedCard.id === card.id);
-  
+
       if (existingCard) {
         if (existingCard.DeckCard && existingCard.DeckCard.count > 1) {
           return prevSelectedCards.map(selectedCard =>
@@ -91,10 +89,8 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
               : selectedCard
           );
         }
-        console.log("this is if card count is 1 or less, removing the card", prevSelectedCards);
         return prevSelectedCards.filter(selectedCard => selectedCard.id !== card.id);
       }
-      console.log("Card not found", prevSelectedCards);
       return prevSelectedCards;
     });
   };
@@ -110,75 +106,59 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
   ) : cards;
 
   const cardsToDisplay = filteredCards.slice(0, 10);
-  console.log("final selected cards is:", selectedCards);
 
-  if (loading) return <p>Loading...</p>; 
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="deck-builder">
-      <h2>{deckName ? `Edit Deck: ${deckName}` : 'Build Your Deck'}</h2>
       <div className="deck-name">
         <input
+          id="deck-name"
           type="text"
-          placeholder="Deck Name"
+          placeholder="Enter Deck Name"
           value={deckName}
           onChange={(e) => setDeckName(e.target.value)}
         />
       </div>
+
       <div className="card-search">
         <input
+          id="card-search"
           type="text"
-          placeholder="Search for cards..."
+          placeholder="Search By Card Name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleSearch}
         />
       </div>
-      <div className="available-cards">
-        <h3>Available Cards</h3>
-        {/* <div className="card-list">
-          {cardsToDisplay.map((card) => (
-            <div key={card.id} className="card-item" onClick={() => handleClick(card)}>
-              <img src={card.image_url} alt={card.name} />
-              <p>{card.name}</p>
-            </div>
-          ))}
-        </div> */}
-        <div className="card-list">
-          {cardsToDisplay.map((card) => (
-            <div key={card.id} className="card-item" onClick={() => handleClick(card)}>
-              <img src={card.image_url} alt={card.name} />
-              <p>{card.name}</p>
-            </div>
-          ))}
+
+      <div className="card-container">
+        <div className="available-cards">
+          <h3>Available Cards</h3>
+          <div className="card-list">
+            {cardsToDisplay.map((card) => (
+              <div key={card.id} className="card-item" onClick={() => handleClick(card)}>
+                <img src={card.image_url} alt={card.name} />
+                <div className="card-count">{card.DeckCard ? card.DeckCard.count : card.count_in_deck}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="selected-cards">
+          <h3>Selected Cards</h3>
+          <div className="card-list">
+            {selectedCards.map((card, index) => (
+              <div key={`${card.id}-${index}`} className="card-item">
+                <img src={card.image_url} alt={card.name} onClick={() => handleRemove(card)} />
+                <div className="card-count">{card.DeckCard ? card.DeckCard.count : card.count_in_deck}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="selected-cards">
-        <h3>Selected Cards</h3>
-        <div className="card-list">
-          {selectedCards.map((card, index) => (
-            // <div key={`${card.id}-${index}`} className="card-item">
-            //   <img
-            //     src={card.image_url}
-            //     alt={card.name}
-            //     onClick={() => handleRemove(card)}
-            //   />
-            //   <p>{card.name}</p>
-            //   <p>Count: {card.count_in_deck || (card.DeckCard.count) || 'N/A'}</p>
-            // </div>
-            <div key={`${card.id}-${index}`} className="card-item">
-              <img
-                src={card.image_url}
-                alt={card.name}
-                onClick={() => handleRemove(card)}
-              />
-              <p>{card.name}</p>
-              <p>Count: {card.count_in_deck || (card.DeckCard.count) || 'N/A'}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-      {onSave && <button onClick={() => onSave(selectedCards)}>Save Deck</button>}
+
+      {onSave && <button onClick={() => onSave(selectedCards)} disabled={isSaveDisabled}>Save Deck</button>}
     </div>
   );
 }

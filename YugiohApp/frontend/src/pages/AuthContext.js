@@ -1,4 +1,3 @@
-//use sessionstorage 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -33,8 +32,8 @@ export const AuthProvider = ({ children }) => {
     
         // Decode the token to extract user details
         const decodedToken = jwtDecode(token);
-        console.log("Decoded Token:", decodedToken); // Check the structure here
-        setUser(decodedToken); // Ensure this contains username and other details
+        console.log("Decoded Token:", decodedToken); 
+        setUser(decodedToken); 
     
         navigate('/dashboard');
       } catch (error) {

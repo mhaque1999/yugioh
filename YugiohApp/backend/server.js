@@ -5,7 +5,6 @@ const sequelize = require('./database/db');
 const authRoutes = require('./routes/authRoutes');
 const deckRoutes = require('./routes/deckRoutes');
 const cardRoutes = require('./routes/cardRoutes');
-const flickrRoutes = require('./routes/flickrRoutes');
 const commentsRoutes = require('./routes/commentsRoutes');
 
 
@@ -15,7 +14,6 @@ const User = require('./models/User');
 const DeckCard = require('./models/DeckCard');
 const Comment = require('./models/Comment');
 
-const { uploadAllImages } = require('./controllers/flickrController');
 
 const app = express();
 const rateLimit = require('./middleware/rateLimit');
@@ -33,7 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/decks', deckRoutes);
 app.use('/api/cards', cardRoutes);
 app.use('/api', commentsRoutes);
-app.use('/flickr', flickrRoutes);
+
 
 
 async function syncDatabaseAndStartServer() {
