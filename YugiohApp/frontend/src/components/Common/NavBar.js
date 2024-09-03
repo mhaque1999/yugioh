@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../pages/AuthContext';
 import './NavBar.css';
 
 function Navbar() {
   const { user, logout } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoading(true);
+    
+    // Simulate a delay for testing logging out
+    setTimeout(async () => {
+      try {
+        await logout();
+      } finally {
+        setIsLoading(false);
+      }
+    }, 2000); 
+  };
 
   return (
     <nav className="navbar">
@@ -19,7 +33,9 @@ function Navbar() {
         {user ? (
           <>
             <li>Welcome, {user.username}</li> 
-            <li><button onClick={logout}>Logout</button></li>
+            <button onClick={handleLogout} disabled={isLoading}>
+                {isLoading ? 'Logging out...' : 'Logout'}
+              </button>
           </>
         ) : (
           <>

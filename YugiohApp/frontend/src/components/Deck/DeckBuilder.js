@@ -7,6 +7,10 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
   const [cards, setCards] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isCardLoading, setIsCardLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [loadingSave, setLoadingSave] = useState(false);
+
 
   // Fetch all available cards on component mount
   useEffect(() => {
@@ -30,6 +34,7 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
     if (deckId) {
       const fetchDeck = async () => {
         try {
+          setLoading(true);
           const response = await axios.get(`/api/decks/${deckId}`);
           const deckData = response.data;
           const deckName = deckData.name;
@@ -39,6 +44,8 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
           setSelectedCards(deckCards);
         } catch (error) {
           console.error('Error fetching deck:', error);
+        } finally {
+          setLoading(false); 
         }
       };
 
@@ -47,56 +54,72 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
   }, [deckId, setSelectedCards, setDeckName]);
 
   const handleClick = (card) => {
+    setIsCardLoading(true);
     setSelectedCards(prevSelectedCards => {
       const existingCard = prevSelectedCards.find(selectedCard => selectedCard.id === card.id);
 
       if (existingCard) {
         if (existingCard.DeckCard && existingCard.DeckCard.count < 3) {
+          setIsCardLoading(false); // Set loading to false after updating the card count
           return prevSelectedCards.map(selectedCard =>
             selectedCard.id === card.id
               ? { ...selectedCard, DeckCard: { ...selectedCard.DeckCard, count: selectedCard.DeckCard.count + 1 } }
               : selectedCard
           );
         } else if (!existingCard.DeckCard && existingCard.count_in_deck < 3) {
+          setIsCardLoading(false); // Set loading to false after updating the card count
           return prevSelectedCards.map(selectedCard =>
             selectedCard.id === card.id
               ? { ...selectedCard, count_in_deck: selectedCard.count_in_deck + 1 }
               : selectedCard
           );
         }
+        setIsCardLoading(false); // Set loading to false if the card count is already maxed
         return prevSelectedCards;
       }
-
+      setIsCardLoading(false); // Set loading to false after adding a new card
       return [...prevSelectedCards, { ...card, count_in_deck: 1 }];
     });
   };
 
   const handleRemove = (card) => {
+    setIsCardLoading(true);
     setSelectedCards(prevSelectedCards => {
       const existingCard = prevSelectedCards.find(selectedCard => selectedCard.id === card.id);
 
       if (existingCard) {
         if (existingCard.DeckCard && existingCard.DeckCard.count > 1) {
+          setIsCardLoading(false);
           return prevSelectedCards.map(selectedCard =>
             selectedCard.id === card.id
               ? { ...selectedCard, DeckCard: { ...selectedCard.DeckCard, count: selectedCard.DeckCard.count - 1 } }
               : selectedCard
           );
         } else if (!existingCard.DeckCard && existingCard.count_in_deck > 1) {
+          setIsCardLoading(false);
           return prevSelectedCards.map(selectedCard =>
             selectedCard.id === card.id
               ? { ...selectedCard, count_in_deck: selectedCard.count_in_deck - 1 }
               : selectedCard
           );
         }
+        setIsCardLoading(false);
         return prevSelectedCards.filter(selectedCard => selectedCard.id !== card.id);
       }
+      setIsCardLoading(false);
       return prevSelectedCards;
     });
   };
 
+  const handleSave = async () => {
+    setLoadingSave(true); 
+    await onSave(selectedCards); 
+    setLoadingSave(false); 
+  };
+
   const handleSearch = (e) => {
     if (e.key === 'Enter') {
+      setLoading(true);
       setSearchQuery(e.target.value);
     }
   };
@@ -111,6 +134,9 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
 
   return (
     <div className="deck-builder">
+      {isCardLoading && <p>Loading card operation...</p>}
+      {isSaving && <p>Saving deck...</p>}
+      {loading && !isCardLoading && !isSaving && <p>Loading...</p>}
       <div className="deck-name">
         <input
           id="deck-name"
@@ -158,7 +184,12 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
         </div>
       </div>
 
-      {onSave && <button onClick={() => onSave(selectedCards)} disabled={isSaveDisabled}>Save Deck</button>}
+      {/* {onSave && <button onClick={() => onSave(selectedCards)} disabled={isSaveDisabled}>Save Deck</button>} */}
+      {onSave && (
+        <button onClick={handleSave} disabled={isSaveDisabled}>
+          {loadingSave ? 'Saving...' : 'Save Deck'}
+        </button>
+      )}
     </div>
   );
 }

@@ -14,6 +14,9 @@ function DeckDetails() {
   const [error, setError] = useState(null);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentContent, setEditingCommentContent] = useState('');
+  const [deletingCommentId, setDeletingCommentId] = useState(null);
+  const [isCommentSubmitting, setIsCommentSubmitting] = useState(false);
+  const [isEditingComment, setIsEditingComment] = useState(false);
   const { getUserId } = useAuth();
 
   useEffect(() => {
@@ -51,6 +54,7 @@ function DeckDetails() {
   };
 
   const handleSaveEditedComment = async () => {
+    setIsEditingComment(true); 
     try {
       const response = await axios.put(`/api/comments/${editingCommentId}`, { userid: getUserId(), content: editingCommentContent });
       setComments(comments.map(comment =>
@@ -60,20 +64,26 @@ function DeckDetails() {
       setEditingCommentContent('');
     } catch (error) {
       console.error('Error editing comment:', error);
+    } finally {
+      setIsEditingComment(false); 
     }
   };
 
   const handleDeleteComment = async (commentId) => {
+    setDeletingCommentId(commentId);
     try {
       await axios.delete(`/api/comments/${commentId}`, { params: { userid: getUserId() } });
       setComments(comments.filter(comment => comment.id !== commentId));
     } catch (error) {
       console.error('Error deleting comment:', error);
+    } finally {
+      setDeletingCommentId(null);
     }
   };
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
+    setIsCommentSubmitting(true);
     try {
       await axios.post(`/api/decks/${deckId}/comments`, { userid: getUserId(), content: newComment });
       setNewComment('');
@@ -81,6 +91,8 @@ function DeckDetails() {
       setComments(response.data);
     } catch (error) {
       console.error('Error adding comment:', error);
+    } finally {
+      setIsCommentSubmitting(false); // Stop loading after adding
     }
   };
 
@@ -89,6 +101,7 @@ function DeckDetails() {
 
   return (
     <div className="deck-details">
+      
       <h1 className="deck-title">{deck.name}</h1>
       <p><strong>Notes:</strong> {deck.description || 'No notes available'}</p>
       <table className="card-table">
@@ -122,8 +135,16 @@ function DeckDetails() {
                   <div className="comment-actions">
                     {comment.userId === getUserId() && (
                       <>
-                        <button onClick={() => handleEditComment(comment.id, comment.content)}>Edit</button>
-                        <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
+                        {deletingCommentId === comment.id ? (
+                          <p>Loading...</p>
+                        ) : (
+                          <>
+                            <button onClick={() => handleEditComment(comment.id, comment.content)}>
+                              {editingCommentId === comment.id ? 'Editing...' : 'Edit'}
+                            </button>
+                            <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
@@ -136,7 +157,9 @@ function DeckDetails() {
                       placeholder="Edit your comment..."
                     />
                     <div className="comment-edit-actions">
-                      <button onClick={handleSaveEditedComment}>Save</button>
+                      <button onClick={handleSaveEditedComment} disabled={isEditingComment}>
+                        {isEditingComment ? 'Saving...' : 'Save'}
+                      </button>
                       <button onClick={() => setEditingCommentId(null)}>Cancel</button>
                     </div>
                   </div>
@@ -154,7 +177,9 @@ function DeckDetails() {
             placeholder="Add a comment..."
             required
           />
-          <button type="submit">Submit</button>
+          <button type="submit">
+            {isCommentSubmitting ? 'Submitting...' : 'Submit'}
+          </button>
         </form>
       </div>
     </div>

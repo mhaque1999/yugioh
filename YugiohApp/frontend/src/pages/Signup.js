@@ -6,16 +6,20 @@ function Signup() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+    setIsLoading(true); 
     try {
       await register(username, password);
     } catch (error) {
       console.error('Signup error:', error.message);
       setErrorMessage('Username has been taken');
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -30,6 +34,7 @@ function Signup() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            disabled={isLoading} 
           />
         </div>
         <div className="form-group">
@@ -39,13 +44,17 @@ function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={isLoading} 
           />
         </div>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button type="submit" className="auth-button">Sign Up</button>
+        <button type="submit" className="auth-button" disabled={isLoading}>
+          {isLoading ? 'Signing up...' : 'Sign Up'}
+        </button>
       </form>
     </div>
   );
 }
 
 export default Signup;
+

@@ -7,11 +7,16 @@ import './Dashboard.css';
 
 function Dashboard() {
   const [decks, setDecks] = useState([]);
+  const [isLoadingNewDeck, setIsLoadingNewDeck] = useState(false);
 
   const navigate = useNavigate();
 
   const handleNewClick = () => {
-    navigate(`/deck-builder/`);
+    setIsLoadingNewDeck(true);
+    //navigate(`/deck-builder/`);
+    setTimeout(() => {
+      navigate(`/deck-builder/`);
+    }, 500); //testing the load
   };
 
   useEffect(() => {
@@ -32,7 +37,9 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <button onClick={handleNewClick}>New Deck</button>
+      <button onClick={handleNewClick} disabled={isLoadingNewDeck}>
+        {isLoadingNewDeck ? 'Creating Deck...' : 'New Deck'}
+      </button>
       <h2>Your Decks</h2>
       <DeckList decks={decks} />
     </div>

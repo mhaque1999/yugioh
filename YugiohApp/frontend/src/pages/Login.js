@@ -6,17 +6,21 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Login form submitted with:', { username, password });
+    setIsLoading(true); 
     try {
       await login(username, password);
       setErrorMessage('');
     } catch (error) {
       console.error('Login error:', error.message);
       setErrorMessage('Invalid username or password');
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -31,6 +35,7 @@ function Login() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            disabled={isLoading} 
           />
         </div>
         <div className="form-group">
@@ -40,16 +45,17 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={isLoading} 
           />
         </div>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button type="submit" className="auth-button">Login</button>
+        <button type="submit" className="auth-button" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
     </div>
   );
 }
 
 export default Login;
-
-
 

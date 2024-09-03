@@ -56,13 +56,13 @@
 .card-container {
   display: flex;
   justify-content: space-between;
-  width: 100%; 
+  width: 100%;
   gap: 20px;
 }
 
 
-.available-cards {
-  flex: 0 0 30%; 
+.available-cards,
+.selected-cards {
   overflow-y: auto;
   height: 400px;
   padding: 10px;
@@ -71,16 +71,14 @@
   border-radius: 5px;
 }
 
+.available-cards {
+  flex: 0 0 30%;
+}
 
 .selected-cards {
-  flex: 0 0 65%; 
-  overflow-y: auto;
-  height: 400px;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  flex: 0 0 65%;
 }
+
 h3 {
   text-align: center;
   font-size: 18px;
@@ -148,20 +146,33 @@ button:disabled {
   cursor: not-allowed;
 }
 
+
+@media (max-width: 750px) {
+  .card-container {
+    flex-direction: column; 
+  }
+
+  .available-cards,
+  .selected-cards {
+    min-width: 100%; 
+  }
+
+  .available-cards {
+    margin-bottom: 20px; 
+  }
+}
+
 @media (max-width: 600px) {
   .deck-builder {
     padding: 15px;
   }
 
-  .deck-name input, .card-search input {
+  .deck-name input,
+  .card-search input {
     font-size: 14px;
   }
 
   .card-item {
     width: 80px;
-  }
-
-  .selected-cards, .available-cards {
-    min-width: 100%;
   }
 }
