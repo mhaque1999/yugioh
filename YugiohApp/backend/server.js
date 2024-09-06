@@ -17,7 +17,7 @@ const Comment = require('./models/Comment');
 
 const app = express();
 const rateLimit = require('./middleware/rateLimit');
-
+const { authenticateJWT } = require('./middleware/authenticate') 
 const PORT = process.env.PORT || 5000;
 
 
@@ -27,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use(rateLimit);
+app.use(authenticateJWT);
 app.use('/api/auth', authRoutes);
 app.use('/api/decks', deckRoutes);
 app.use('/api/cards', cardRoutes);

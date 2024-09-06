@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './CommunityHubPage.css';
 import { Link } from 'react-router-dom';
+import axiosInstance from '../axiosHeader';
 
 function CommunityHubPage() {
   const [decks, setDecks] = useState([]);
@@ -11,13 +12,13 @@ function CommunityHubPage() {
     const fetchDecks = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/decks');
+        const response = await axiosInstance.get('/api/decks');
         const decksData = response.data;
 
         // Fetch cards for each deck
         const decksWithCards = await Promise.all(
           decksData.map(async (deck) => {
-            const cardsResponse = await axios.get(`/api/decks/${deck.id}`);
+            const cardsResponse = await axiosInstance.get(`/api/decks/${deck.id}`);
             const cards = cardsResponse.data.Cards;
             return { ...deck, Cards: cards };
           })

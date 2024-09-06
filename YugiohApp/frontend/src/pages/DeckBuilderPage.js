@@ -4,7 +4,8 @@ import DeckBuilder from '../components/Deck/DeckBuilder';
 import './DeckBuilderPage.css';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-
+import axiosInstance from '../axiosHeader';
+import { useAuth } from './AuthContext';
 
 function DeckBuilderPage() {
   const { deckId } = useParams();
@@ -17,11 +18,14 @@ function DeckBuilderPage() {
   const [deckName, setDeckName] = useState(''); 
   const [message, setMessage] = useState('');
 
+  const { getUserId } = useAuth();
+  
+
   useEffect(() => {
     
     const fetchDeckData = async () => {
       try {
-        const response = await axios.get(`/api/decks/${deckId}`);
+        const response = await axiosInstance.get(`/api/decks/${deckId}`);
         setDeck(response.data);
         setPublicDeck(response.data.public); //
         setSelectedCards(response.data.Cards || []);
@@ -43,13 +47,11 @@ function DeckBuilderPage() {
 
   const handleSaveDeck = async () => {
     try {
+      const userId = getUserId();
       console.log(selectedCards.length);
       console.log("im from deckbuilderpage", selectedCards)
       const currentDeckName = deckName; 
       
-      const token = localStorage.getItem('token');
-      const decodedToken = jwtDecode(token);
-      console.log(decodedToken)
       if (!currentDeckName || selectedCards.length === 0) {
         console.error('Deck name and selected cards are required');
         setError('Deck name and selected cards are required');
@@ -65,24 +67,24 @@ function DeckBuilderPage() {
       if (deckId) {
         // Update deck name
         console.log(publicDeck)
-        const respo = await axios.put(`/api/decks/${deckId}`, { name: currentDeckName, isPublic: publicDeck }); //
-        console.log(respo)
+        await axiosInstance.put(`/api/decks/${deckId}/${userId}`, { name: currentDeckName, isPublic: publicDeck });
+
       
         // Clear existing cards from the deck
-        await axios.delete(`/api/decks/removecards/${deckId}`);
+        await axiosInstance.delete(`/api/decks/removecards/${deckId}/${userId}`);
 
         // Add cards to the deck
-        await axios.post(`/api/cards/${deckId}/add`, { cardIds });
+        await axiosInstance.post(`/api/cards/${userId}/decks/${deckId}/add`, { cardIds });
         setMessage('Deck saved successfully!');
         setTimeout(() => setMessage(''), 3000);
       } else {
         // Create new deck
-        const response = await axios.post('/api/decks', { name: currentDeckName, userId:decodedToken.userId });
+        const response = await axiosInstance.post('/api/decks', { name: currentDeckName, userId });
         const newDeckId = response.data.id;
   
         // Add cards to the newly created deck
-        await axios.post(`/api/cards/${newDeckId}/add`, { cardIds });
-  
+        await axiosInstance.post(`/api/cards/${userId}/decks/${newDeckId}/add`, { cardIds });
+
         // Navigate to the deck builder with the new deck ID
         navigate(`/deck-builder/${newDeckId}`);
         setMessage('Deck saved successfully!');

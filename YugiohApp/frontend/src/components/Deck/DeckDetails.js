@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../pages/AuthContext';
 import './DeckDetails.css';
+import axiosInstance from '../../axiosHeader';
 
 function DeckDetails() {
   const { deckId } = useParams();
@@ -18,11 +19,12 @@ function DeckDetails() {
   const [isCommentSubmitting, setIsCommentSubmitting] = useState(false);
   const [isEditingComment, setIsEditingComment] = useState(false);
   const { getUserId } = useAuth();
+  
 
   useEffect(() => {
     const fetchDeckDetails = async () => {
       try {
-        const response = await axios.get(`/api/decks/${deckId}`);
+        const response = await axiosInstance.get(`/api/decks/${deckId}`);
         setDeck(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -35,7 +37,7 @@ function DeckDetails() {
     const fetchComments = async () => {
       setCommentsLoading(true);
       try {
-        const response = await axios.get(`/api/decks/${deckId}/comments`);
+        const response = await axiosInstance.get(`/api/decks/${deckId}/comments`);
         setComments(response.data);
       } catch (error) {
         console.error('Error fetching comments:', error);
@@ -56,7 +58,9 @@ function DeckDetails() {
   const handleSaveEditedComment = async () => {
     setIsEditingComment(true); 
     try {
-      const response = await axios.put(`/api/comments/${editingCommentId}`, { userid: getUserId(), content: editingCommentContent });
+      const response = await axiosInstance.put(`/api/${getUserId()}/comments/${editingCommentId}`, {
+        content: editingCommentContent
+      });
       setComments(comments.map(comment =>
         comment.id === editingCommentId ? response.data : comment
       ));
@@ -72,7 +76,7 @@ function DeckDetails() {
   const handleDeleteComment = async (commentId) => {
     setDeletingCommentId(commentId);
     try {
-      await axios.delete(`/api/comments/${commentId}`, { params: { userid: getUserId() } });
+      await axiosInstance.delete(`/api/${getUserId()}/comments/${commentId}`);
       setComments(comments.filter(comment => comment.id !== commentId));
     } catch (error) {
       console.error('Error deleting comment:', error);
@@ -85,9 +89,12 @@ function DeckDetails() {
     e.preventDefault();
     setIsCommentSubmitting(true);
     try {
-      await axios.post(`/api/decks/${deckId}/comments`, { userid: getUserId(), content: newComment });
+      await axiosInstance.post(`/api/${getUserId()}/decks/${deckId}/comments`, {
+        userid: getUserId(),
+        content: newComment,
+      });
       setNewComment('');
-      const response = await axios.get(`/api/decks/${deckId}/comments`);
+      const response = await axiosInstance.get(`/api/decks/${deckId}/comments`);
       setComments(response.data);
     } catch (error) {
       console.error('Error adding comment:', error);

@@ -321,7 +321,7 @@ async function addCardsToDeck(req, res) {
 
       console.log('Current Card Counts:', cardCounts);
 
-      const cardCountMap = cardCounts.reduce((map, { card_id, count }) => {  // Use card_id
+      const cardCountMap = cardCounts.reduce((map, { card_id, count }) => {  
         map[card_id] = count;
         return map;
       }, {});

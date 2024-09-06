@@ -16,9 +16,10 @@ exports.getCommentsForDeck = async (req, res) => {
   }
 };
 
-exports.addComment = async (req, res) => {
+exports.addComment = async (req, res) => { //change
   try {
-    const { content, userid } = req.body;
+    const { content } = req.body; 
+    const userid = res.locals.user.userId; 
     const comment = await Comment.create({
       content,
       userId: userid, 
@@ -30,10 +31,11 @@ exports.addComment = async (req, res) => {
   }
 };
 
-exports.editComment = async (req, res) => {
+exports.editComment = async (req, res) => { //change 
   try {
     const { commentId} = req.params;
-    const { content, userid } = req.body;
+    const { content } = req.body; 
+    const userid = res.locals.user.userId; 
     console.log('Editing comment ID:', commentId); 
     // Find the comment by ID
     const comment = await Comment.findByPk(commentId,{include: [{ model: User, as: 'user' }] });
@@ -60,10 +62,10 @@ exports.editComment = async (req, res) => {
   }
 };
 
-exports.deleteComment = async (req, res) => {
+exports.deleteComment = async (req, res) => { 
   try {
     const { commentId } = req.params;
-    const { userid } = req.query;
+    const userid = res.locals.user.userId; 
     const comment = await Comment.findByPk(commentId);
     console.log(comment)
 

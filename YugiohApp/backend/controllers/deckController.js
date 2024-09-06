@@ -8,39 +8,24 @@ const cache = require('../middleware/cache');
 
 async function getAllDecks(req, res) {
   try {
-    // Check if decks data is cached
-    // const cachedDecks = await cache.get('allDecks');
-    // if (cachedDecks) {
-    //   return res.json(JSON.parse(cachedDecks));
-    // }
-
     const decks = await Deck.findAll({
       where: { public: true },
       include: [{ model: User, as:'user', attributes: ['username'] }],
     });
     console.log("this is the community decks:",decks)
-    // Cache decks data for 2 days (172800 seconds)
-    // await cache.set('allDecks', JSON.stringify(decks), 172800);
-
     res.json(decks);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
 
-async function getUserDecks(req, res){
+async function getUserDecks(req, res){ //change
   try {
-    const { userId } = req.body;
+    const userId = res.locals.user.userId;
 
-    // const cachedUserDecks = await cache.get(`userDecks_${userId}`);
-    // if (cachedUserDecks) {
-    //   return res.json(JSON.parse(cachedUserDecks));
-    // }
-    
     const userDecks = await Deck.findAll({ where: { user_id: userId } });
     
     console.log("the userdecks from the deck controller is:",userDecks)
-    // await cache.set(`userDecks_${userId}`, JSON.stringify(userDecks), 172800);
 
     res.json(userDecks);
   } 
@@ -49,16 +34,10 @@ async function getUserDecks(req, res){
   }
 }
 
-async function getDeckById(req, res) {
+async function getDeckById(req, res) { 
   try {
     const { id } = req.params;
-
-    // Check if deck data is cached
-    const cachedDeck = await cache.get(`deck_${id}`);
-    if (cachedDeck) {
-      return res.json(JSON.parse(cachedDeck));
-    }
-    
+  
     const deck = await Deck.findOne({
       where: { id: id },
       include: [
@@ -77,9 +56,6 @@ async function getDeckById(req, res) {
       return res.status(404).json({ error: 'Deck not found' });
     }
 
-    // Cache deck data for 2 days (172800 seconds)
-    //await cache.set(`deck_${id}`, JSON.stringify(deck), 172800);
-
     res.json(deck);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -87,9 +63,10 @@ async function getDeckById(req, res) {
 }
 
 
-async function createDeck(req, res) {
+async function createDeck(req, res) { //change 
   try {
-    const { name, userId } = req.body;
+    const { name } = req.body; 
+    const userId = res.locals.user.userId;
     const newDeck = await Deck.create({ name, userId });
 
     // Clear allDecks cache after creating new deck
@@ -105,6 +82,7 @@ async function updateDeck(req, res) {
   try {
     const { id } = req.params;
     const { name, isPublic } = req.body;
+    console.log('Received deck ID:', id);
     console.log("this public value from deckcontroller:", isPublic);
     const deck = await Deck.findByPk(id);
     if (!deck) {
@@ -112,14 +90,7 @@ async function updateDeck(req, res) {
     }
 
     await deck.update({ name:name, public:isPublic });
-    //await deck.update({ })
-
-    // Clear deck cache after updating
-    await cache.del(`deck_${id}`);
-
-    // Clear allDecks cache after updating
-    await cache.del('allDecks');
-
+  
     res.json(deck);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -163,10 +134,10 @@ async function deleteCardsFromDeck(req, res)  {
 
 async function updateVisibility(req, res){
   try {
-    const { deckId } = req.params;
+    const { id } = req.params;
     const { public } = req.body; 
 
-    const [updated] = await Deck.update({ public }, { where: { id: deckId } });
+    const [updated] = await Deck.update({ public }, { where: { id: id } });
     
     if (updated) {
       const updatedDeck = await Deck.findByPk(deckId);

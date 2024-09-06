@@ -4,6 +4,7 @@ import DeckList from '../components/Deck/DeckList';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import './Dashboard.css';
+import axiosInstance from '../axiosHeader';
 
 function Dashboard() {
   const [decks, setDecks] = useState([]);
@@ -24,8 +25,9 @@ function Dashboard() {
 
       try {
         const token = localStorage.getItem('token');
-        const decodedToken = jwtDecode(token);
-        const response = await axios.post('/api/decks/userdecks', { userId: decodedToken.userId });
+        
+        //const decodedToken = jwtDecode(token);
+        const response = await axiosInstance.post('/api/decks/userdecks');
         setDecks(response.data);
       } catch (error) {
         console.error('Error fetching user decks:', error);

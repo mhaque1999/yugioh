@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DeckBuilder.css'; 
 import { getImageUrl } from '../../utils/util';
+import axiosInstance from '../../axiosHeader';
+import { useAuth } from '../../pages/AuthContext';
 
 function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCards, setDeckName, deckId, isSaveDisabled }) {
+  const { getUserId } = useAuth();
+  const userId = getUserId();
   const [cards, setCards] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -17,7 +21,7 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
     const fetchCards = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/cards');
+        const response = await axiosInstance.get('/api/cards');
         setCards(response.data);
       } catch (error) {
         console.error('Error fetching cards:', error);
@@ -35,7 +39,7 @@ function DeckBuilder({ deckName = '', selectedCards = [], onSave, setSelectedCar
       const fetchDeck = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(`/api/decks/${deckId}`);
+          const response = await axiosInstance.get(`/api/decks/${deckId}`);
           const deckData = response.data;
           const deckName = deckData.name;
           const deckCards = deckData.Cards;

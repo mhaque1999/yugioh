@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { SECRET_KEY } = require("../middleware/secret");
 
 async function registerUser(req, res) {
   try {
@@ -25,7 +26,7 @@ async function loginUser(req, res) {
       return res.status(400).json({ error: 'Invalid username or password' });
     }
 
-    const token = jwt.sign({ userId: user.id, username: user.username }, 'your_jwt_secret_key', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id, username: user.username }, SECRET_KEY, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ error: error.message });

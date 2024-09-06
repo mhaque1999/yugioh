@@ -14,7 +14,9 @@ function Signup() {
     setErrorMessage('');
     setIsLoading(true); 
     try {
+      console.log("register username and password is ", username, password)
       await register(username, password);
+      setErrorMessage('');
     } catch (error) {
       console.error('Signup error:', error.message);
       setErrorMessage('Username has been taken');
